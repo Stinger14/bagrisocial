@@ -1,9 +1,8 @@
-##!/usr/bin/env python3
+#!/usr/bin/env python3
 
-# Copyright (C) 2018 Maxly Garcia
+# Copyright (C) 2017 Adam Smith
 
-# This file is part of Bagrisocial
-# This file was modified and built upon Reaper by Adam Smith.
+# This file is part of Reaper
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +26,7 @@ import os
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QSizePolicy
 from PyQt5.QtCore import QThread, pyqtSignal, QUrl, Qt
-from PyQt5.QtGui import QDesktopServices, QTextCursor, QIcon
+from PyQt5.QtGui import QDesktopServices, QTextCursor, QIcon, QFont
 
 import socialreaper
 import requests
@@ -85,15 +84,15 @@ class GenerateData(QThread):
                                            self.count))
 
             if downloaded_count % self.chunk_size == 0:
-                self.show_status.emit("Un estimado de {}/{} filas completas".format(
+                self.show_status.emit("Estimado de filas completadas: {}/{} ".format(
                     downloaded_count, self.count), 10000)
 
             downloaded_count += 1
         self.progress_changed.emit(100)
-        self.show_status.emit("Consulta completada", 2000)
+        self.show_status.emit("Busqueda completada", 2000)
 
         if not self.ran:
-            self.item_generated.emit({"Message": "Busqueda no encontro resultados"})
+            self.item_generated.emit({"Message": "No hay resultados para su busqueda..."})
 
     def write(self, text):
         self.write_console.emit(str(text))
@@ -124,7 +123,7 @@ class Reaper(Ui_MainWindow):
         self.generator_thread.start()
 
         self.window = window
-        self.window.setWindowIcon(QIcon('ui/icon.png'))
+        self.window.setWindowIcon(QIcon('icon.png'))
 
         self.setupUi(window)
         self.updateStatusLabel.setText(
@@ -212,7 +211,7 @@ class Reaper(Ui_MainWindow):
     def choose_save_dir(self):
         try:
             if os.name == 'posix' and not os.environ.get('developing'):
-                directory = os.path.expanduser("~") + "/.config/reaper"
+                directory = os.path.expanduser("~") + "/Desktop"    #default_dir: "/.config/reaper"
             else:
                 directory = "."
             if not os.path.exists(directory):
@@ -279,21 +278,21 @@ class Reaper(Ui_MainWindow):
         self.facebookTab.setEnabled(facebook)
 
         twitter = self.auth_keys.get('twitter_app_key') != "" and \
-            self.auth_keys.get('twitter_app_secret') != "" and \
-            self.auth_keys.get('twitter_oauth_token') != "" and \
-            self.auth_keys.get('twitter_oauth_token_secret') != ""
+                  self.auth_keys.get('twitter_app_secret') != "" and \
+                  self.auth_keys.get('twitter_oauth_token') != "" and \
+                  self.auth_keys.get('twitter_oauth_token_secret') != ""
         self.twitterTab.setEnabled(twitter)
 
         youtube = self.auth_keys.get('youtube_api_key') != ""
         self.youtubeTab.setEnabled(youtube)
 
         reddit = self.auth_keys.get('reddit_application_id') != "" and \
-            self.auth_keys.get('reddit_application_secret') != ""
+                 self.auth_keys.get('reddit_application_secret') != ""
         self.redditTab.setEnabled(reddit)
 
     @staticmethod
     def error_message(exception,
-                      text="An error occurred when processing your request",
+                      text="Un error se ha presentado durante el proceso",
                       title="Error"):
 
         msg = QMessageBox()
@@ -318,6 +317,89 @@ class Reaper(Ui_MainWindow):
     def bug_url():
         url = QUrl('https://gitreports.com/issue/ScriptSmith/reaper')
         QDesktopServices.openUrl(url)
+
+
+    def open_link(self):
+        """
+        Opens a webbrowser from the url scrapped either from the tweet's
+        text or user url table using a custom regex.
+        :return:
+        """
+        try:
+            import re
+            import webbrowser
+
+            #linkRegex = re.compile(r'https:\/\/t.co\/[a-zA-Z0-9]+')     # regex
+
+            data = self.data    # list of dicts
+            flatData = [socialreaper.tools.flatten(datum) for datum in data]    # a flattened dict
+
+            tmpRow = 1          # first item to iterate
+            row = self.tableWidget.currentRow() + 1 # row of doubleclicked item
+            col = self.tableWidget.currentColumn()  # col of doubleclicked item
+
+            # open tweet source
+            for item in data:
+                if tmpRow == row:       # check if current item is the doubleClicked item
+                    for field in item:  # table for item
+                        if field == 'id_str' and col == 5:
+                            url = 'https://twitter.com/statuses/' + item[field]
+                            webbrowser.open(url)
+                elif tmpRow > row:
+                    break
+
+                tmpRow += 1     # next item
+            tmpRow = 1      #reset iteration for next loop
+
+            # open user profile
+            for item2 in flatData:
+                if tmpRow == row:
+                    for field2 in item2:
+                        if field2 == 'user.screen_name' and col == 4:
+                            url = 'https://twitter.com/' + item2[field2]
+                            webbrowser.open(url)
+                tmpRow += 1     # next item
+
+
+            """
+            for item in data:
+                if tmpRow == row:
+                    for field in item:
+                        # open tweet source
+                        if field == 'text' and col == 5:
+                            txt = item[field]
+                            mo = linkRegex.search(txt)  # matching obj
+                            url = mo.group()
+                            webbrowser.open(url)
+                        # open user profile
+                        if field == 'id_str' and col == 4:
+                            url = 'https://twitter.com/statuses/' + item[field]
+                            webbrowser.open(url)
+                tmpRow += 1
+            tmpRow = 1
+            """
+            """
+            for item2 in flatData:
+                if tmpRow == row:
+                    for field2 in item2:
+                        if field2 == 'user.screen_name' and col == 4:
+                            value = item2['id_str']
+                            url = 'https:\/\/twitter.com\/statuses\/' + item2[value]
+                            webbrowser.open(url)
+                tmpRow += 1
+            """
+            """
+            for item2 in flatData:
+                if tmpRow == row:
+                    for field2 in item2:
+                        if field2 == 'user.url' and col == 4:
+                            url = item2[field2]
+                            webbrowser.open(url)
+                tmpRow += 1
+            """
+
+        except (TypeError, NameError, AttributeError, KeyError):
+            print("Check open_link")
 
     def write_console(self, text):
         self.textOut.setHidden(False)
@@ -344,29 +426,36 @@ class Reaper(Ui_MainWindow):
     def table_fill(self, table_data, field_names):
         for row_count, row in enumerate(table_data):
             for col_count, col in enumerate(field_names):
-                value = row[col]
-                if not isinstance(value, str):
-                    value = str(value)
+                try:
+                    value = row[col]
 
-                self.tableWidget.setItem(row_count, col_count,
+                    if not isinstance(value, str):
+                        value = str(value)
+
+                    self.tableWidget.setItem(row_count, col_count,
                                          QtWidgets.QTableWidgetItem(
                                              value))
-    #grid display
+                except KeyError as e:
+                    print(e)
+
+    # DISPLAYS RESULTS IN GRID
     def display_results(self):
         self.disable_display_results()
         self.tableWidget.clear()
 
         data = self.data
         data = [socialreaper.tools.flatten(datum) for datum in data]
-        #field_names, data = socialreaper.tools.fill_gaps(data)  #data, field_names = list
-        field_names = ['created_at', 'id', 'user.name','user.location', 'retweeted_status.source', 'text']
+        field_names, data = socialreaper.tools.fill_gaps(data)  # data, field_names = list
+        field_names = ['created_at', 'id', 'user.name', 'user.location',\
+                       'user.screen_name' ,'text']
 
         self.tableWidget.setRowCount(len(data))
-        self.tableWidget.setColumnCount(len(data[0]))   #len(data[0])
+        self.tableWidget.setColumnCount(6)  # len(data[0])
 
         self.table_fill(data, field_names)
+        self.tableWidget.setFont(QFont('Sans Serif', 16))
 
-        self.tableWidget.setHorizontalHeaderLabels(field_names)
+        self.tableWidget.setHorizontalHeaderLabels(['Creación', 'ID', 'Usuario', 'Localidad', 'Enlace Usuario', 'Tweet'])
         self.tableWidget.horizontalHeader().show()
 
     def table_append(self, item, force=False):
@@ -376,7 +465,7 @@ class Reaper(Ui_MainWindow):
             return
 
         item = socialreaper.tools.flatten(item)
-        
+
         if len(item) > self.table_max_cols or self.tableWidget.columnCount() > \
                 self.table_max_cols and not force:
             self.tableWidget.setRowCount(1)
@@ -385,7 +474,7 @@ class Reaper(Ui_MainWindow):
             self.tableWidget.setItem(0, 0, QtWidgets.QTableWidgetItem(err_text))
             self.display_table = False
             return
-        
+
         field_names, item = socialreaper.tools.fill_gaps(
             [item, dict.fromkeys(self.existing_field_names)])
 
@@ -404,7 +493,7 @@ class Reaper(Ui_MainWindow):
 
             self.table_fill(table_data, field_names)
         else:
-            row_count = self.tableWidget.rowCount()+1
+            row_count = self.tableWidget.rowCount() + 1
             self.tableWidget.setRowCount(row_count)
 
             for col_count, col in enumerate(field_names):
@@ -412,7 +501,7 @@ class Reaper(Ui_MainWindow):
                 if not isinstance(value, str):
                     value = str(value)
 
-                self.tableWidget.setItem(row_count-1, col_count,
+                self.tableWidget.setItem(row_count - 1, col_count,
                                          QtWidgets.QTableWidgetItem(
                                              value))
 
@@ -449,7 +538,7 @@ class Reaper(Ui_MainWindow):
         self.tableWidget.setColumnCount(0)
         self.progressBar.setValue(0)
 
-        self.statusbar.showMessage("Consultando", 10000)
+        self.statusbar.showMessage("Ejecutando búsqueda", 10000)
         self.pauseButton.setText("Pausa")
         self.generator_thread.paused = False
 
@@ -891,7 +980,7 @@ class Reaper(Ui_MainWindow):
                 num_videos = self.y4_numVideos.value()
                 comment_order = self.y4_commentOrder.currentItem().text()
                 comment_text = self.y4_commentText.text()
-                comment_text = comment_text.replace(" ","").split(",")
+                comment_text = comment_text.replace(" ", "").split(",")
                 comment_format = self.y4_commentFormat.currentItem().text()
                 num_comments = self.y4_numComments.value()
 
@@ -1040,6 +1129,8 @@ class Reaper(Ui_MainWindow):
 
         self.pauseButton.clicked.connect(self.pause_thread)
 
+        self.tableWidget.itemDoubleClicked.connect(self.open_link)
+
     def check_updates(self):
         self.checkUpdatesButton.setEnabled(False)
         try:
@@ -1052,15 +1143,15 @@ class Reaper(Ui_MainWindow):
         req = req.json()
 
         if isinstance(req, dict) and req.get('message'):
-            self.error_message(Exception("Could not get updates:" + req[
+            self.error_message(Exception("No se pudo encotrar actualizaciones disponibles:" + req[
                 'message']))
             return
 
         if req[0]['tag_name'] == self.version:
-            self.updateStatusLabel.setText("Reaper {} is up to date".format(
+            self.updateStatusLabel.setText("Bagsoapp {} está actualizado".format(
                 self.version))
         else:
-            new_text = "<a href='{}'>Download latest Reaper version</a>".format(
+            new_text = "<a href='{}'>Descarga la última versión de Reaper</a>".format(
                 "http://github.com/ScriptSmith/reaper/releases/latest")
             self.updateStatusLabel.setText(new_text)
             self.error_message(None, text=new_text, title="Update")
@@ -1070,5 +1161,6 @@ if __name__ == "__main__":
     # sys.excepthook = log_handler
     app = QtWidgets.QApplication(sys.argv)
     main_window = QtWidgets.QMainWindow()
+    main_window.setStyleSheet('icon.png')
     ui = Reaper(main_window)
     sys.exit(app.exec_())
