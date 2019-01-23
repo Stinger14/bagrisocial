@@ -3564,17 +3564,17 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Bagrisocial"))
         self.label_121.setText(_translate("MainWindow", "Bienvenido a Bagrisocial"))
         self.label_123.setText(_translate("MainWindow", "\n"
-"Bagrisocial es una herramienta grafica que interactua con API's de redes sociales usando el modulo socialreaper de python \n"
+"Bagrisocial es una herramienta gráfica que interactua con APIs de diversas redes sociales usando el módulo socialreaper de python. \n"
 "\n"
-"Bagrisocial actualmente soporta extraccion de datos para Facebook y Twitter. Al usar este software, esta aceptanco las politicas de uso de dichas plataformas \n"
+"Bagrisocial actualmente soporta extracción de datos para Facebook y Twitter. Al usar este software, esta aceptando las políticas de uso de dichas plataformas \n"
 "\n"
-"Para comenzar, debe proveer a Bagrisocial con autenticacion para el uso de las APIs \n\n"))
-        self.label_124.setText(_translate("MainWindow", "Bagrisocial esta bajo la licencia GPL 3.0 \n"
+"Para comenzar debe proveer a Bagrisocial con autenticación para el uso de las APIs \n\n"))
+        self.label_124.setText(_translate("MainWindow", "Bagrisocial está bajo la licencia GPL 3.0 \n"
 "\n"
-"© Maxly Garcia, 2018\n"
+"© Maxly García, 2018\n"
 ""))
         self.label_125.setText(_translate("MainWindow", "<a href=\"https://github.com/Stinger14/reaper\">https://github.com/Stinger14/reaper</a>"))
-        self.introductionContinue.setText(_translate("MainWindow", "Continue"))
+        self.introductionContinue.setText(_translate("MainWindow", "Continuar"))
         self.label.setText(_translate("MainWindow", "API key"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.facebookAuthTab), _translate("MainWindow", "Facebook"))
         self.label_5.setText(_translate("MainWindow", "App key"))
@@ -4725,12 +4725,12 @@ class Ui_MainWindow(object):
         item = self.t2_resultType.item(2)
         item.setText(_translate("MainWindow", "popular"))
         self.t2_resultType.setSortingEnabled(__sortingEnabled)
-        self.label_120.setText(_translate("MainWindow", "Numero de Tweets"))
+        self.label_120.setText(_translate("MainWindow", "Número de Tweets"))
         self.t2_maxId.setPlaceholderText(_translate("MainWindow", "796351336178655232"))
         self.label_31.setText(_translate("MainWindow", "Usuario"))
         self.t3_excludeReplies.setText(_translate("MainWindow", "Excluir respuesta"))
         self.t3_includeRetweets.setText(_translate("MainWindow", "Incluir Retweets"))
-        self.label_32.setText(_translate("MainWindow", "Numero de Tweets"))
+        self.label_32.setText(_translate("MainWindow", "Número de Tweets"))
         self.t3_username.setPlaceholderText(_translate("MainWindow", "@Segurafoster"))
         self.inputTab.setTabText(self.inputTab.indexOf(self.twitterTab), _translate("MainWindow", "Twitter"))
         self.label_33.setText(_translate("MainWindow", "Function"))

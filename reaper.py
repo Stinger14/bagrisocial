@@ -92,7 +92,7 @@ class GenerateData(QThread):
         self.show_status.emit("Busqueda completada", 2000)
 
         if not self.ran:
-            self.item_generated.emit({"Message": "No hay resultados para su busqueda..."})
+            self.item_generated.emit({"Mensaje": "No hay resultados para su busqueda..."})
 
     def write(self, text):
         self.write_console.emit(str(text))
