@@ -305,7 +305,7 @@ class Reaper(Ui_MainWindow):
 
     @staticmethod
     def project_url():
-        url = QUrl('https://github.com/ScriptSmith/reaper')
+        url = QUrl('https://github.com/Stinger14/reaper')
         QDesktopServices.openUrl(url)
 
     @staticmethod
@@ -315,7 +315,7 @@ class Reaper(Ui_MainWindow):
 
     @staticmethod
     def bug_url():
-        url = QUrl('https://gitreports.com/issue/ScriptSmith/reaper')
+        url = QUrl('https://gitreports.com/issue/Stinger14/reaper')
         QDesktopServices.openUrl(url)
 
 
